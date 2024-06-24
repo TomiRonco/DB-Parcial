@@ -1,0 +1,57 @@
+MySQL - Triggers
+Un trigger en MySQL es un conjunto de sentencias SQL que residen en un catálogo del
+sistema, sirven para realizar comprobaciones de valores que se insertarán en una tabla o para
+realizar cálculos sobre valores involucrados en una actualización.
+
+Trigger a nivel de fila: se activa para cada fila afectada mediante una declaración de
+activación, como insertar, actualizar o eliminar.
+Trigger a nivel de declaración: se activa una vez por cada evento que ocurre en una tabla,
+independientemente de cuántas filas se inserten, actualicen o eliminen.
+
+Before Insert: se activa antes de la inserción de datos en la tabla.
+After Insert: se activa después de la inserción de datos en la tabla.
+Before Update: se activa antes de la actualización de datos en la tabla.
+After Update: se activa después de la actualización de datos en la tabla.
+Before Delete: se activa antes de que se eliminen los datos de la tabla.
+After Delete: se activa después de que se eliminen los datos de la tabla.
+
+
+MySQL - Stored Procedure
+Un stored procedure (o procedimiento almacenado) en MySQL es un conjunto de sentencias
+SQL precompiladas y almacenadas en la DB que se invoca externamente.
+Se utilizan cuando debemos realizar tareas repetitivas con regularidad que involucran
+múltiples sentencias SQL.
+
+Características de los Stored Procedures
+Aumentan el rendimiento de las aplicaciones.
+Reduce el tráfico entre la aplicación y el servidor de la base de datos.
+Son reutilizables y transparentes para cualquier aplicación.
+Son seguros.
+
+
+MySQL - Transacciones
+Una transacción es un grupo secuencial de operaciones de manipulación de bases de datos,
+que se relacionan entre sí y que se realiza como si fuera una sola unidad de trabajo.
+una transacción nunca estará completa a menos que cada operación individual dentro del grupo sea exitosa.
+
+El motor de almacenamiento (storage-engine) se encarga de almacenar, manejar y recuperar
+información de una tabla. Los más populares son InnoDB y MyISAM.
+● InnoDB: si necesitamos transacciones, claves foráneas y bloqueos.
+● MyISAM: donde predominen las consultas SELECT a la base de datos.
+
+El concepto ACID hace referencia a las características o propiedades de un motor de base de
+datos transaccional que garantizan que las transacciones en la DB se realicen de forma segura
+y confiable:
+Atomicity (atomicidad): esto asegura que todas las operaciones dentro de la unidad de
+trabajo se completen con éxito, de lo contrario, la transacción se cancela en el punto de
+falla y las operaciones anteriores se revierten a su estado anterior.
+
+Consistency (coherencia): esto garantiza que la base de datos cambie correctamente de
+estado tras una transacción confirmada con éxito (mantiene la integridad referencial aún
+ante fallos).
+
+Isolation (aislamiento): esto permite que las transacciones operen de forma
+independiente y transparente entre sí.
+
+Durability (durabilidad): esto asegura que el resultado o efecto de una transacción
+comprometida persista en caso de una falla del sistema.
