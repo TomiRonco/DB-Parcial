@@ -1,0 +1,776 @@
+#PRACTICA 1
+
+#EJERCICIO_1
+SELECT 
+    cuit, razon_social, direccion, telefono, e_mail
+FROM
+    agencia_personal.empresas;
+
+#EJERCICIO_2
+SELECT 
+    apellido, nombre, fecha_registro_agencia
+FROM
+    agencia_personal.personas;
+
+#EJERCICIO_3
+SELECT 
+    cod_titulo AS 'Codigo',
+    desc_titulo AS 'Descripcion',
+    tipo_titulo AS 'Tipo'
+FROM
+    agencia_personal.titulos
+ORDER BY desc_titulo ASC;
+
+#EJERCICIO_4
+SELECT 
+    CONCAT(apellido, ' ', nombre) AS 'Apellido y Nombres',
+    fecha_nacimiento,
+    Telefono,
+    direccion
+FROM
+    agencia_personal.personas
+WHERE
+    dni = 28675888;
+
+#EJERCICIO_5
+SELECT 
+    CONCAT(apellido, ' ', nombre) AS 'Apellido y Nombres',
+    fecha_nacimiento,
+    telefono,
+    direccion
+FROM
+    agencia_personal.personas
+WHERE
+    dni IN (27890765 , 29345777, 31345778);
+
+#EJERCICIO_6
+SELECT 
+    *
+FROM
+    agencia_personal.personas
+WHERE
+    LOWER(apellido) LIKE 'G%';
+
+#EJERCICIO_7
+SELECT 
+    nombre, apellido, fecha_nacimiento
+FROM
+    agencia_personal.personas
+WHERE
+    YEAR(fecha_nacimiento) BETWEEN 1980 AND 2000;
+
+#EJERCICIO_8
+SELECT 
+    *
+FROM
+    agencia_personal.solicitudes_empresas
+ORDER BY fecha_solicitud ASC;
+
+#EJERCICIO_9
+SELECT 
+    *
+FROM
+    agencia_personal.antecedentes
+WHERE
+    fecha_hasta IS NULL
+ORDER BY fecha_desde ASC;
+
+#EJERCICIO_10
+SELECT 
+    dni, cod_cargo, fecha_desde, fecha_hasta
+FROM
+    agencia_personal.antecedentes
+WHERE
+    fecha_hasta < 20130601
+        OR fecha_hasta > 20131231
+ORDER BY dni ASC;
+
+#EJERCICIO_11
+SELECT 
+    nro_contrato AS 'Nro contrato',
+    dni AS 'DNI',
+    sueldo AS 'Salario',
+    cuit AS 'Cuit'
+FROM
+    agencia_personal.contratos
+WHERE
+    sueldo >= 2000
+        AND cuit IN ('30-10504876-5' , '30-21098732-4');
+
+#EJERCICIO_12
+SELECT 
+    cod_titulo, desc_titulo, tipo_titulo
+FROM
+    agencia_personal.titulos
+WHERE
+    LOWER(desc_titulo) LIKE 'Tecnico%';
+
+#EJERCICIO_13
+
+#PRACTICA2
+#EJERCICIO 1
+SELECT 
+    P.nombre AS 'Nombre',
+    P.apellido AS 'Apellido',
+    C.sueldo AS 'Sueldo',
+    P.dni AS 'DNI'
+FROM
+    agencia_personal.personas P
+        INNER JOIN
+    contratos C ON P.dni = C.dni
+WHERE
+    nro_contrato = 5;
+
+#EJERCICIO 2
+SELECT 
+    C.dni AS 'DNI',
+    nro_contrato AS 'NRO Contrato',
+    fecha_incorporacion AS 'Fecha Incorporacion',
+    fecha_solicitud AS 'Fecha Solicitud',
+    IFNULL(fecha_caducidad, 'Sin fecha') AS 'Fecha caducidad'
+FROM
+    contratos C
+        INNER JOIN
+    empresas E ON C.cuit = E.cuit
+WHERE
+    razon_social = 'Viejos Amigos'
+        OR razon_social = 'Traigame Eso'
+ORDER BY fecha_solicitud ASC , razon_social DESC;
+
+#EJERCICIO 6
+SELECT 
+    CONCAT(P.apellido,
+            ', ',
+            P.nombre,
+            ' tiene como referencia a ',
+            IFNULL(A.persona_contacto, 'No tiene contacto'),
+            ' cuando trabajo en ',
+            E.razon_social) AS ' '
+FROM
+    personas P
+        INNER JOIN
+    antecedentes A ON P.dni = A.dni
+        INNER JOIN
+    empresas E ON A.cuit = E.cuit
+WHERE
+    persona_contacto = 'Armando Esteban Quito'
+        OR persona_contacto = 'Felipe Rojas'
+        OR persona_contacto IS NULL;
+
+#EJERCICIO 7
+SELECT 
+    razon_social AS 'Empresa',
+    S.fecha_solicitud,
+    desc_cargo AS 'Cargo',
+    IFNULL(edad_minima, 'Sin especificar') AS 'Edad min',
+    IFNULL(edad_maxima, 'Sin especificar') AS 'Edad max'
+FROM
+    empresas E
+        INNER JOIN
+    solicitudes_empresas S ON S.cuit = E.cuit
+        INNER JOIN
+    cargos CA ON CA.cod_cargo = S.cod_cargo
+WHERE
+    E.razon_social = 'Viejos Amigos';
+
+#EJERCICIO 10
+SELECT 
+    E.cuit AS 'cuit',
+    E.razon_social AS 'Razon social',
+    IFNULL(fecha_solicitud, 'Sin solicitud') AS 'Fecha Solicitud',
+    IFNULL(desc_cargo, 'Sin solicitud') AS 'Cargo'
+FROM
+    empresas E
+        LEFT JOIN
+    solicitudes_empresas S ON E.cuit = S.cuit
+        LEFT JOIN
+    cargos C ON C.cod_cargo = S.cod_cargo;
+
+#EJERCICIO 11
+SELECT 
+    E.cuit,
+    E.razon_social,
+    CA.desc_cargo,
+    PER.dni,
+    PER.nombre,
+    PER.apellido
+FROM
+    empresas E
+        INNER JOIN
+    solicitudes_empresas SE ON E.cuit = SE.cuit
+        INNER JOIN
+    cargos CA ON SE.cod_cargo = CA.cod_cargo
+        LEFT JOIN
+    contratos CON ON SE.cuit = CON.cuit
+        AND SE.cod_cargo = CON.cod_cargo
+        AND SE.fecha_solicitud = CON.fecha_solicitud
+        LEFT JOIN
+    personas PER ON CON.dni = PER.dni;
+
+#EJERCICIO 12
+SELECT 
+    E.cuit, E.razon_social, CA.desc_cargo
+FROM
+    solicitudes_empresas SE
+        INNER JOIN
+    empresas E ON SE.cuit = E.cuit
+        INNER JOIN
+    cargos CA ON SE.cod_cargo = CA.cod_cargo
+        LEFT JOIN
+    contratos CON ON CON.cuit = SE.cuit
+        AND CON.cod_cargo = SE.cod_cargo
+        AND CON.fecha_solicitud = SE.fecha_solicitud
+WHERE
+    nro_contrato IS NULL;
+
+#EJERCICIO 14
+SELECT 
+    INS.cuil AS 'Cuil instructor',
+    INS.nombre AS 'Nombre instructor',
+    INS.apellido AS 'Apellido instructor',
+    SUP.cuil AS 'Cuit supervisor',
+    INS.cuil_supervisor AS 'Cuit supervisor',
+    SUP.nombre AS 'Nombre supervisor',
+    SUP.apellido AS 'Apellido supervisor'
+FROM
+    instructores INS
+        INNER JOIN
+    instructores SUP ON INS.cuil_supervisor = SUP.cuil
+WHERE
+    INS.cuil_supervisor IS NOT NULL;
+
+
+#EJERCICIO 15
+SELECT 
+    INS.cuil AS 'Cuil instructor',
+    INS.nombre AS 'Nombre instructor',
+    INS.apellido AS 'Apellido instructor',
+    IFNULL(SUP.cuil, '') AS 'Cuil supervisor',
+    IFNULL(SUP.nombre, '') AS 'Nombre supervisor',
+    IFNULL(SUP.apellido, '') AS 'Apellido supervisor'
+FROM
+    instructores INS
+        LEFT JOIN
+    instructores SUP ON INS.cuil_supervisor = SUP.cuil;
+
+#PRACTICA 3
+#EJERCICIO 1
+SELECT 
+    nro_contrato,
+    fecha_incorporacion,
+    fecha_finalizacion_contrato,
+    ADDDATE(fecha_solicitud,
+        INTERVAL 30 DAY) AS 'fecha_caducidad'
+FROM
+    contratos
+WHERE
+    fecha_caducidad IS NULL;
+
+#EJERCICIO 2
+SELECT 
+    CON.nro_contrato,
+    EM.razon_social,
+    PER.apellido,
+    PER.nombre,
+    CON.fecha_incorporacion,
+    IFNULL(CON.fecha_caducidad, 'Contrato vigente') AS 'fin contrato'
+FROM
+    contratos CON
+        INNER JOIN
+    personas PER ON CON.dni = PER.dni
+        INNER JOIN
+    empresas EM ON EM.cuit = CON.cuit;
+
+#EJERCICIO 3
+SELECT 
+    nro_contrato,
+    fecha_incorporacion,
+    fecha_finalizacion_contrato,
+    fecha_caducidad,
+    sueldo,
+    dni,
+    cuit,
+    cod_cargo,
+    fecha_solicitud,
+    DATEDIFF(fecha_finalizacion_contrato,
+            fecha_caducidad) AS 'dias_antes'
+FROM
+    contratos
+WHERE
+    fecha_finalizacion_contrato >= fecha_caducidad;
+
+#EJERCICIO 4
+SELECT 
+    E.cuit,
+    E.razon_social,
+    E.direccion,
+    CO.anio_contrato,
+    CO.mes_contrato,
+    CO.importe_comision,
+    ADDDATE(NOW(), INTERVAL 2 MONTH) AS 'fecha vencimiento'
+FROM
+    empresas E
+        INNER JOIN
+    contratos C ON c.cuit = E.cuit
+        INNER JOIN
+    comisiones CO ON CO.nro_contrato = C.nro_contrato
+WHERE
+    fecha_pago IS NULL;
+
+
+#PRACTICA 4
+
+#EJERCICIO 1
+SELECT 
+    E.razon_social, SUM(importe_comision)
+FROM
+    comisiones CO
+        INNER JOIN
+    contratos C ON C.nro_contrato = CO.nro_contrato
+        INNER JOIN
+    empresas E ON E.cuit = C.cuit
+WHERE
+    E.cuit = '30-21008765-5'
+        AND fecha_pago IS NOT NULL;
+
+#EJERCICIO 2
+SELECT 
+    E.razon_social, SUM(importe_comision)
+FROM
+    comisiones CO
+        INNER JOIN
+    contratos C ON C.nro_contrato = CO.nro_contrato
+        INNER JOIN
+    empresas E ON E.cuit = C.cuit
+WHERE
+    fecha_pago IS NOT NULL
+GROUP BY E.razon_social;
+HAVING (SUM(com.importe_comision) > 1000);
+
+#EJERCICIO 3
+SELECT 
+    E.nombre_entrevistador,
+    EVAL.cod_evaluacion,
+    AVG(EE.resultado),
+    STD(EE.resultado),
+    VARIANCE(EE.resultado)
+FROM
+    entrevistas E
+        INNER JOIN
+    entrevistas_evaluaciones EE ON EE.nro_entrevista = E.nro_entrevista
+        INNER JOIN
+    evaluaciones EVAL ON EE.cod_evaluacion = EVAL.cod_evaluacion
+GROUP BY EE.cod_evaluacion , E.nombre_entrevistador
+ORDER BY 3 , 5 DESC;
+
+#EJERCICIO 4
+SELECT 
+    E.nombre_entrevistador,
+    EVAL.cod_evaluacion,
+    AVG(EE.resultado),
+    STD(EE.resultado),
+    VARIANCE(EE.resultado)
+FROM
+    entrevistas E
+        INNER JOIN
+    entrevistas_evaluaciones EE ON EE.nro_entrevista = E.nro_entrevista
+        INNER JOIN
+    evaluaciones EVAL ON EE.cod_evaluacion = EVAL.cod_evaluacion
+WHERE
+    E.nombre_entrevistador = 'Angelica Doria'
+GROUP BY EE.cod_evaluacion , E.nombre_entrevistador;
+
+#EJERCICIO 8
+SELECT 
+    CON.nro_contrato,
+    COUNT(*) AS 'total',
+    COUNT(COM.fecha_pago) AS 'pagadas',
+    COUNT(*) - COUNT(COM.fecha_pago) AS 'a pagar'
+FROM
+    comisiones COM
+        INNER JOIN
+    contratos CON ON COM.nro_contrato = CON.nro_contrato
+GROUP BY CON.nro_contrato;
+
+#EJERCICIO 13
+#EJERCICIO 14
+#EJERCICIO 15
+
+#PRACTICA 5
+
+#EJERCICIO 1
+SELECT DISTINCT
+    P.dni, P.nombre, P.apellido
+FROM
+    agencia_personal.personas P
+        INNER JOIN
+    agencia_personal.contratos C ON P.dni = C.dni
+WHERE
+    C.cuit IN (SELECT 
+            C.cuit
+        FROM
+            agencia_personal.contratos C
+                INNER JOIN
+            agencia_personal.personas P ON C.dni = P.dni
+        WHERE
+            apellido LIKE 'Lopez'
+                AND nombre LIKE 'Stefan%a');
+
+#EJERCICIO 2
+select max(sueldo) from empresas E inner join contratos C on C.cuit=E.cuit
+where razon_social = "Viejos Amigos";
+SELECT 
+    P.dni,
+    CONCAT(P.nombre, ' ', P.apellido) AS 'Nombre y apellido',
+    C.sueldo
+FROM
+    personas P
+        INNER JOIN
+    contratos C ON P.dni = C.dni
+WHERE
+    C.sueldo < (SELECT 
+            MAX(sueldo)
+        FROM
+            empresas E
+                INNER JOIN
+            contratos C ON C.cuit = E.cuit
+        WHERE
+            razon_social = 'Viejos Amigos');
+            
+#EJERCICIO 3
+drop temporary table if exists sueldosPromedios;
+create temporary table sueldosPromedios select E.cuit, avg(sueldo) "promedio"
+from empresas E inner join contratos C on E.cuit=C.cuit
+group by C.cuit;
+
+SELECT 
+    *
+FROM
+    sueldosPromedios SP
+        INNER JOIN
+    contratos C ON SP.cuit = C.cuit
+WHERE
+    C.sueldo > SP.promedio;
+
+#EJERCIOCIO 4
+#EJERCIOCIO 7
+#EJERCIOCIO 9
+#EJERCIOCIO 10
+#EJERCIOCIO 11
+#EJERCIOCIO 12
+#EJERCIOCIO 16
+
+
+AYUDA
+—-------------------------------------
+
+
+-- PRACTICA 8
+
+#EJERCICIO 1
+INSERT INTO `afatse`.`instructores`
+(`cuil`,
+`nombre`,
+`apellido`,
+`tel`,
+`email`,
+`direccion`)
+VALUES
+('44-44444444-4',
+'Daniel',
+'Tapia',
+'444-444444',
+'dotapia@gmail.com',
+'Ayacucho 4444');
+
+#EJERCICIO 2
+INSERT INTO `afatse`.`plan_capacitacion`
+(`nom_plan`,
+`desc_plan`,
+`hs`,
+`modalidad`)
+VALUES
+(' Administrador de BD',
+'Instalación y configuración MySQL. Lenguaje
+SQL. Usuarios y permisos',
+300,
+' presencial');
+
+INSERT INTO `afatse`.`plan_temas`
+(`nom_plan`,
+`titulo`,
+`detalle`)
+VALUES
+(" Administrador de BD","1-Instalación MySQL","Distintas configuraciones de instalación"),
+(" Administrador de BD","2- Configuración DBMS","Variables de entorno, su uso y configuración"),
+(" Administrador de BD","3- Lenguaje SQL","DML, DDL y TCL"),
+(" Administrador de BD","4- Usuarios y Permisos","Permisos de usuarios y DCL");
+
+INSERT INTO `afatse`.`examenes`
+(`nom_plan`,
+`nro_examen`)
+VALUES
+(" Administrador de BD",1),
+(" Administrador de BD",2),
+(" Administrador de BD",3),
+(" Administrador de BD",4);
+
+INSERT INTO `afatse`.`examenes_temas`
+(`nom_plan`,
+`titulo`,
+`nro_examen`)
+VALUES
+(" Administrador de BD","1-Instalación MySQL",1),
+(" Administrador de BD","2- Configuración DBMS",2),
+(" Administrador de BD","3- Lenguaje SQL",3),
+(" Administrador de BD","4- Usuarios y Permisos",4);
+
+INSERT INTO `afatse`.`materiales`
+(`cod_material`,
+`desc_material`,
+`url_descarga`,
+`autores`,
+`tamanio`,
+`fecha_creacion`)
+VALUES
+("AP-010",
+"DBA en MySQL",
+"http://www.afatse.com.ar/apuntes?AP=010",
+"José Román",
+2,
+"01/03/09"),
+("AP-011",
+"SQL en MySQL",
+"http://www.afatse.com.ar/apuntes?AP=011",
+"Juan López",
+3,
+"01/04/09");
+
+INSERT INTO `afatse`.`valores_plan`
+(`nom_plan`,
+`fecha_desde_plan`,
+`valor_plan`)
+VALUES
+(" Administrador de BD",
+"09/02/01",
+150);
+
+#EJERCICIO 3
+UPDATE `afatse`.`alumnos` 
+SET 
+    `tel` = '3232323',
+    `direccion` = 'Italia 2323'
+WHERE
+    `dni` = 23232323;
+
+#EJERCICIO 5
+DELETE FROM `afatse`.`materiales` 
+WHERE
+    cod_material = 'AP-008'
+    AND cod_material = 'AP-009';
+
+#EJERCICIO 7
+DELETE FROM `afatse`.`inscripciones` 
+WHERE
+    nom_plan LIKE 'Marketing 3'
+    AND nro_curso = 1;
+
+#EJERCICIO 8
+DELETE FROM `afatse`.`instructores` 
+WHERE
+    cuil_supervisor LIKE '99-99999999-9';
+
+#EJERCICIO 9
+#EJERCICIO 10
+#EJERCICIO 14
+
+
+TPI
+
+-- 1) Insertar el producto Cubierta Kevlar Gravel 700x42, con 0 meses de garantía, un stock inical de 10 y un umbral de stock de 2 y
+-- precio de $5000 (utilizar la función NOW).
+INSERT INTO `en_dos_ruedas_[roncoroni]-[51660]`.`productos`
+(
+`descripcion`,
+`meses_gtia`,
+`stock_inicial`,
+`umbral_stock`)
+VALUES
+(
+"Cubierta Kevlar Gravel 700x42",
+0,
+10,
+2);
+SET @cod_cubierta=last_insert_id();
+
+INSERT INTO `en_dos_ruedas_[roncoroni]-[51660]`.`precioshistoricos`
+(`cod_producto`,
+`fec_hora_alta`,
+`precio`)
+VALUES
+(@cod_cubierta,
+now(),
+5000.00);
+
+-- 2) Inserta una actualización de precio para la cubierta, ahora vale $5100  (utilizar la función NOW).
+INSERT INTO `en_dos_ruedas_[roncoroni]-[51660]`.`precioshistoricos`
+(`cod_producto`,
+`fec_hora_alta`,
+`precio`)
+VALUES
+(1,
+date_sub(now(), interval 1 second),
+5100);
+
+-- 3) Inserta otra actualización de precio para la cubierta pero esta vez a partir del 31/12/2023 la cubierta valdrá $5500.
+INSERT INTO `en_dos_ruedas_[roncoroni]-[51660]`.`precioshistoricos`
+(`cod_producto`,
+`fec_hora_alta`,
+`precio`)
+VALUES
+(1,
+"2023-12-31",
+5500);
+
+-- 4) Insertar el producto Cámara 700x42, con 0 meses de garantía, un stock inical de 20 y un umbral de stock de 5 y precio de $1000.
+INSERT INTO `en_dos_ruedas_[roncoroni]-[51660]`.`productos`
+(
+`descripcion`,
+`meses_gtia`,
+`stock_inicial`,
+`umbral_stock`)
+VALUES
+(
+"Cámara 700x42",
+0,
+20,
+5);
+
+SET @cod_camara = last_insert_id();
+
+INSERT INTO `en_dos_ruedas_[roncoroni]-[51660]`.`precioshistoricos`
+VALUES
+(@cod_camara,
+now(),
+1000);
+
+-- 5) Insertar el producto Kit cámara + cubierta compuesto por 1 cubierta + 1 cámara, con 0 meses de garantía, un stock inicial de 10 y un precio de $5500.
+INSERT INTO `en_dos_ruedas_[roncoroni]-[51660]`.`productos`
+(
+`descripcion`,
+`meses_gtia`,
+`stock_inicial`,
+`umbral_stock`)
+VALUES
+(
+"Kit cámara + cubierta",
+0,
+10,
+0);
+
+SET @cod_kit=last_insert_id();
+
+INSERT INTO `en_dos_ruedas_[roncoroni]-[51660]`.`precioshistoricos`
+VALUES
+(@cod_kit,
+now(),
+5500);
+
+INSERT INTO `en_dos_ruedas_[roncoroni]-[51660]`.`kits`
+VALUES
+(@cod_kit,
+1,
+1);
+
+INSERT INTO `en_dos_ruedas_[roncoroni]-[51660]`.`kits`
+VALUES
+(@cod_kit,
+2,
+1);
+
+-- 6) Insertar tus datos como cliente.
+SET @cod_CS=5;
+INSERT INTO TiposDocumentos VALUES(@cod_CS, "Consumidor Final", "Responsabilidad");
+
+
+SET @cod_DNI=96;
+INSERT INTO TiposDocumentos VALUES(@cod_DNI, "DNI", "Identificación");
+
+SET @nro_doc=43425035;
+INSERT INTO Clientes VALUES(
+	@nro_doc,
+    "Tomas", "Roncoroni", NULL, "+5493416648588", "Zeballos", "856", "P6D1", "Rosario", @cod_DNI, @cod_CS
+);
+
+-- 7) Crear tu carrito con la forma de pago "contado" e inserta en él, 1 cubierta, 1 cámara y un kit (utiliza variables para 
+-- almacenar el nro de carrito y poder insertar el detalle, buscar el precio actual, etc).
+INSERT INTO FormasDePago VALUES (NULL, "Contado");
+SET @formapago_id=last_insert_id();
+
+INSERT INTO carritos
+VALUES
+(NULL,
+now(),
+NULL,
+@formapago_id,
+@nro_doc);
+SET @carrito_id=last_insert_id();
+SET @detalle_id=1;
+
+ALTER TABLE `DetallesCarritos` 
+CHANGE COLUMN `precio_unitario` `precio_unitario` DECIMAL(9,2) NOT NULL ;
+
+select @precio:=(SELECT precio FROM PreciosHistoricos WHERE cod_producto=@cod_cubierta and fec_hora_alta<=NOW() order by fec_hora_alta DESC LIMIT 1);
+INSERT INTO DetallesCarritos VALUES (
+	@carrito_id,
+    @detalle_id,
+    @cod_cubierta,
+    1,
+    @precio
+);
+
+SET @detalle_id=@detalle_id + 1;
+SELECT 
+    @precio:=(SELECT 
+            precio
+        FROM
+            PreciosHistoricos
+        WHERE
+            cod_producto = @cod_camara
+                AND fec_hora_alta <= NOW()
+        ORDER BY fec_hora_alta DESC
+        LIMIT 1);
+INSERT INTO DetallesCarritos VALUES (
+	@carrito_id,
+    @detalle_id,
+    @cod_cubierta,
+    1,
+    @precio
+);
+
+SET @detalle_id=@detalle_id + 1;
+select @precio:=(SELECT precio FROM PreciosHistoricos WHERE cod_producto=@cod_kit and fec_hora_alta<=NOW() order by fec_hora_alta DESC LIMIT 1);
+INSERT INTO DetallesCarritos VALUES (
+	@carrito_id,
+    @detalle_id,
+    @cod_kit,
+    1,
+    @precio
+);
+-- Insertado el carrito, la frutilla del postre sería decrementar los stocks de los productos, pero como utilizamos tecnología perfecta en este curso
+-- el stock podemos calcularlo cuando querramos, si queremos decremantarlo haríamos:
+UPDATE Productos SET stock_inicial=stock_inicial - 1 WHERE cod_producto=@cod_cubierta;
+UPDATE Productos 
+SET 
+    stock_inicial = stock_inicial - 1
+WHERE
+    cod_producto = @cod_camara;
+UPDATE Productos SET stock_inicial=stock_inicial - 1 WHERE cod_producto=@cod_kit;
+
+EXTRA
+set @ult_nro_contrat=(select max(nro_contrato) from contratos);
+
+set @ult_prox_contract=(select max(nro_contrato) + 1 from contratos);
+
+select @ult_prox_contract;
+
